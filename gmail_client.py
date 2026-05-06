@@ -1,5 +1,7 @@
 import os
 import base64
+import requests
+import datetime
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -23,14 +25,24 @@ def get_gmail_service():
     return build("gmail", "v1", credentials=creds)
 
 def get_unread_substack_emails(service, sender_email):
-    query = f"from:{sender_email} is:unread"
+    cutoff = datetime.datetime.now() - datetime.timedelta(hours=24)
+    after_timestamp = int(cutoff.timestamp())
+    query = f"from:@substack.com -from:no-reply@substack.com is:unread after:{after_timestamp}"
     results = service.users().messages().list(userId="me", q=query).execute()
     return results.get("messages", [])
+
+def resolve_redirect(url):
+    """Follow redirects to get the final article URL."""
+    try:
+        response = requests.head(url, allow_redirects=True, timeout=10)
+        return response.url.split("?")[0]
+    except requests.RequestException:
+        return url
 
 def extract_article_url(service, msg_id):
     """Extract the main article URL from a Substack email."""
     msg = service.users().messages().get(userId="me", id=msg_id, format="full").execute()
-    
+
     # Get HTML body
     parts = msg["payload"].get("parts", [])
     html_body = None
@@ -39,23 +51,20 @@ def extract_article_url(service, msg_id):
             data = part["body"].get("data", "")
             html_body = base64.urlsafe_b64decode(data).decode("utf-8")
             break
-    
+
     if not html_body and msg["payload"]["body"].get("data"):
         html_body = base64.urlsafe_b64decode(
             msg["payload"]["body"]["data"]
         ).decode("utf-8")
-    
+
     if not html_body:
         return None
-    
-    # Substack "Read in app" or "Read on the web" links point to the article
+
     soup = BeautifulSoup(html_body, "html.parser")
     for a in soup.find_all("a", href=True):
         href = a["href"]
-        # Substack post URLs follow this pattern
-        if "/p/" in href and "substack.com" in href:
-            # Strip tracking params
-            return href.split("?")[0]
+        if "substack.com/app-link/post" in href or ("/p/" in href and "substack.com" in href):
+            return resolve_redirect(href)
     return None
 
 def mark_as_read(service, msg_id):
