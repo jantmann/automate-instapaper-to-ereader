@@ -1,4 +1,5 @@
+__pycache__/
 config.env
 .venv
 credentials.json
-tokens.json
+token.json
