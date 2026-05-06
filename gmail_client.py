@@ -1,4 +1,5 @@
 import os
+import json
 import base64
 import requests
 import datetime
@@ -12,16 +13,30 @@ SCOPES = ["https://www.googleapis.com/auth/gmail.modify"]
 
 def get_gmail_service():
     creds = None
-    if os.path.exists("token.json"):
-        creds = Credentials.from_authorized_user_file("token.json", SCOPES)
+
+    # Load from environment variables (GitHub Actions)
+    gmail_token = os.getenv("GMAIL_TOKEN")
+    gmail_credentials = os.getenv("GMAIL_CREDENTIALS")
+
+    if gmail_token:
+        creds = Credentials.from_authorized_user_info(json.loads(gmail_token), SCOPES)
+    
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
-        else:
-            flow = InstalledAppFlow.from_client_secrets_file("credentials.json", SCOPES)
+        elif os.path.exists("token.json"):
+            creds = Credentials.from_authorized_user_file("token.json", SCOPES)
+        elif gmail_credentials:
+            flow = InstalledAppFlow.from_client_secrets_info(
+                json.loads(gmail_credentials), SCOPES
+            )
             creds = flow.run_local_server(port=0)
-        with open("token.json", "w") as f:
-            f.write(creds.to_json())
+        
+        # Save token locally if possible
+        if not gmail_token:
+            with open("token.json", "w") as f:
+                f.write(creds.to_json())
+
     return build("gmail", "v1", credentials=creds)
 
 def get_unread_substack_emails(service, sender_email):
