@@ -122,6 +122,7 @@ The workflow file is required to be in the main branch in order to be picked up 
 ### Cost
 This pipeline is free to run.
 * GitHub Actions: free tier includes 2,000 min/month for private repos. This workflow uses approximately 1-2 minutes per day.
+* cron-job.org: free for personal use
 * Gmail API: free for personal use
 * Instapaper API: free for personal use
 * Google Cloud Console: free at this scale
