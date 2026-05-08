@@ -1,4 +1,18 @@
-# automate-instapaper-to-ereader
-The goal of this project is to automate the delivery of newsletters/blogs to my Kobo, such that each morning, I can get my news directly on my e-reader rather than having to go get distracted by my phone (the ultimate focus-fracturing machine). 
+# Automated Article Delivery to Kobo with Instapaper
+A simple Python pipeline that automatically sends newsletters/blogs to Instapaper such that they arrive on your Kobo e-reader each morning -- no manual steps required.
 
-I hope that this will improve my life just a smidgen! And maybe it will improve yours too! 
+### How It Works
+
+### Motivation
+
+### Prerequisites
+
+### Setup
+
+### GitHub Actions Setup
+
+### Schedule
+
+### Cost
+
+
