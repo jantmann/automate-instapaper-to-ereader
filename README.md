@@ -76,12 +76,13 @@ This workflow will automatically run ona schedule via GitHub Actions. However, t
 1. Add repository secrets
     * Go to your repo -> Settings -> Secrets and variables -> Actions
     * Add the following secrets
-    | Secret Name         | Value                             |
-    | ------------------- | --------------------------------- |
-    | INSTAPAPER_USERNAME |  Your Instapaper email            |
-    | INSTAPAPER_PASSWORD | Your Instapaper password          |
-    | GMAIL_CREDENTIALS   | Full contents of credentials.json |
-    | GMAIL_TOKEN         | Full contents of token.json       |
+| Secret Name         | Value                             |
+| ------------------- | --------------------------------- |
+| INSTAPAPER_USERNAME |  Your Instapaper email            |
+| INSTAPAPER_PASSWORD | Your Instapaper password          |
+| GMAIL_CREDENTIALS   | Full contents of credentials.json |
+| GMAIL_TOKEN         | Full contents of token.json       |
+
     * To get the contents for GMAIL_CREDENTIALS and GMAIL_TOKEN:
     ```
     cat credentials.json
