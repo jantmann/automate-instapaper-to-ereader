@@ -2,7 +2,7 @@
 A simple Python pipeline that automatically sends newsletters/blogs to Instapaper such that they arrive on your Kobo e-reader each morning -- no manual steps required.
 
 ### How It Works
-1. A GitHub Actions workflows runs on a schedule every morning according to specified cron jobs
+1. A sequence of cron jobs run on a schedule every morning 
 2. gmail_client.py authenticates with Gmail using the Gmail API
 3. Searches for unread emails from any @substack.com sender received overnight/early morning
 4. Extracts the article URL from each email, cleans & resolves any links as necessary
@@ -22,6 +22,7 @@ This project is just one way that I'm working to realize that world I want to li
 * An Instapaper account
 * A Gmail account receiving your subscribed news
 * A Google Cloud Console account
+* A cron-job.org account
 * A GitHub account
 
 ### Setup
@@ -70,8 +71,8 @@ cp config.env.tmpl config.env
 
         You will not be prompted to login again on any future runs of the application.
 
-### GitHub Actions Setup
-This workflow will automatically run ona schedule via GitHub Actions. However, this does require some added setup.
+### Cron Job Setup
+This workflow will automatically run on a schedule via cron-job.org. However, this does require some added setup.
 
 1. Add repository secrets
 * Go to your repo -> Settings -> Secrets and variables -> Actions
@@ -79,7 +80,7 @@ This workflow will automatically run ona schedule via GitHub Actions. However, t
 
 | Secret Name         | Value                             |
 | ------------------- | --------------------------------- |
-| INSTAPAPER_USERNAME |  Your Instapaper email            |
+| INSTAPAPER_USERNAME | Your Instapaper email             |
 | INSTAPAPER_PASSWORD | Your Instapaper password          |
 | GMAIL_CREDENTIALS   | Full contents of credentials.json |
 | GMAIL_TOKEN         | Full contents of token.json       |
@@ -92,21 +93,31 @@ This workflow will automatically run ona schedule via GitHub Actions. However, t
     ```
 
 2. Push to main
-The workflow file is required to be in the main branch in order to be picked up by GitHub Actions.
+The workflow file is required to be in the main branch in order to be picked up by GitHub.
 
-3. Trigger a manual run to verify
+3. Generate GitHub personal access token
+    * GitHub -> Settings -> Developer settings -> Personal Access Tokens
+    * Generate new token (classic)
+    * Check the "workflow" scope
+    * Copy the token down
+
+4. Configure cron jobs
+    * Navigate to cron-job.org
+    * Create account
+    * Hit "create cronjob"
+    * Fill in the following fields:
+        * URL: https://api.github.com/repos/jantmann/automate-instapaper-to-ereader/actions/workflows/sync.yml/dispatches
+        * Execution method: your custom desired run times
+        * Request method: POST
+        * Headers:
+            * Authentication: Bearer {The PAT you created in Step 3 above}
+            * Acccepted: application/vnd.github.v3+json
+            * Content-Type: application/json
+        * Request body: {"ref": "main"}
+    * Repeat the above steps for however many cron jobs you want completed
+
+5. Trigger a manual run to verify
     * Go to your repo -> Actions -> Substack to Instapaper -> Run workflow
-
-### Schedule
-The workflow runs at the following times daily (EDT):
-
-| cron        | Time (EDT)|
-| ----------- | --------- |
-| 30 10 * * * | 6:30AM    |
-| 30 11 * * * | 7:30AM    |
-| 30 12 * * * | 8:30AM    |
-| 30 13 * * * | 9:30AM    |
-| 30 14 * * * | 10:30AM   | 
 
 ### Cost
 This pipeline is free to run.
