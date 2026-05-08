@@ -1,4 +1,5 @@
 import os
+import datetime
 from dotenv import load_dotenv
 from gmail_client import get_gmail_service, get_unread_substack_emails, extract_article_url, mark_as_read
 from instapaper_client import send_to_instapaper
@@ -37,6 +38,11 @@ def run_substack_pipeline():
         else:
             print(f"✗ Failed to send: {url}")
 
+def is_nyt_window():
+    """Only run NYT pipeline during the 7:30 AM EDT trigger (11:30 UTC)."""
+    now = datetime.datetime.now(datetime.timezone.utc)
+    return now.hour == 11 and now.minute < 45
+
 def run_nyt_pipeline():
     print("\n--- NYT Pipeline ---")
     articles = get_top_stories(section="home")
@@ -62,4 +68,7 @@ def run_nyt_pipeline():
 
 if __name__ == "__main__":
     run_substack_pipeline()
-    run_nyt_pipeline()
+    if is_nyt_window():
+        run_nyt_pipeline()
+    else:
+        print("\n--- NYT Pipeline skipped (not the 7:30 AM run) ---")
