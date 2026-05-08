@@ -85,10 +85,10 @@ This workflow will automatically run ona schedule via GitHub Actions. However, t
 | GMAIL_TOKEN         | Full contents of token.json       |
 
 * To get the contents for GMAIL_CREDENTIALS and GMAIL_TOKEN:
-```
-cat credentials.json
-cat token.json
-```
+    ```
+    cat credentials.json
+    cat token.json
+    ```
 
 2. Push to main
 The workflow file is required to be in the main branch in order to be picked up by GitHub Actions.
@@ -109,10 +109,10 @@ The workflow runs at the following times daily (EDT):
 
 ### Cost
 This pipeline is free to run.
-    * GitHub Actions: free tier includes 2,000 min/month for private repos. This workflow uses approximately 1-2 minutes per day.
-    * Gmail API: free for personal use
-    * Instapaper API: free for personal use
-    * Google Cloud Console: free at this scale
+* GitHub Actions: free tier includes 2,000 min/month for private repos. This workflow uses approximately 1-2 minutes per day.
+* Gmail API: free for personal use
+* Instapaper API: free for personal use
+* Google Cloud Console: free at this scale
 
 ### Future Steps
 As it currently stands, this repo only integrates Substack newsletter subscriptions being delivered to the users Gmail with Instapaper in order to receive them each morning on the Kobo e-reader.
