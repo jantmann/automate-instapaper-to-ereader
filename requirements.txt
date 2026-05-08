@@ -5,3 +5,5 @@ requests
 python-dotenv
 beautifulsoup4
 datetime
+sentence-transformers
+torch
