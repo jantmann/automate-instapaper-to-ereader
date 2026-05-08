@@ -74,8 +74,9 @@ cp config.env.tmpl config.env
 This workflow will automatically run ona schedule via GitHub Actions. However, this does require some added setup.
 
 1. Add repository secrets
-    * Go to your repo -> Settings -> Secrets and variables -> Actions
-    * Add the following secrets
+* Go to your repo -> Settings -> Secrets and variables -> Actions
+* Add the following secrets:
+
 | Secret Name         | Value                             |
 | ------------------- | --------------------------------- |
 | INSTAPAPER_USERNAME |  Your Instapaper email            |
@@ -83,11 +84,12 @@ This workflow will automatically run ona schedule via GitHub Actions. However, t
 | GMAIL_CREDENTIALS   | Full contents of credentials.json |
 | GMAIL_TOKEN         | Full contents of token.json       |
 
-    * To get the contents for GMAIL_CREDENTIALS and GMAIL_TOKEN:
-    ```
-    cat credentials.json
-    cat token.json
-    ```
+* To get the contents for GMAIL_CREDENTIALS and GMAIL_TOKEN:
+```
+cat credentials.json
+cat token.json
+```
+
 2. Push to main
 The workflow file is required to be in the main branch in order to be picked up by GitHub Actions.
 
