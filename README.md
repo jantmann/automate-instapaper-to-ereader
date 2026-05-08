@@ -85,6 +85,7 @@ This workflow will automatically run ona schedule via GitHub Actions. However, t
 | GMAIL_TOKEN         | Full contents of token.json       |
 
 * To get the contents for GMAIL_CREDENTIALS and GMAIL_TOKEN:
+
     ```
     cat credentials.json
     cat token.json
