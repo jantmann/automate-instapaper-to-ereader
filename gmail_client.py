@@ -39,7 +39,7 @@ def get_gmail_service():
 
     return build("gmail", "v1", credentials=creds)
 
-def get_unread_substack_emails(service, sender_email):
+def get_unread_substack_emails(service):
     cutoff = datetime.datetime.now() - datetime.timedelta(hours=26) ## Look back 26 hours to ensure we catch all recent emails
     after_timestamp = int(cutoff.timestamp())
     query = f"from:@substack.com -from:no-reply@substack.com is:unread after:{after_timestamp}"
