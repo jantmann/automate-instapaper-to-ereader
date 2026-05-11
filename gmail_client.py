@@ -82,9 +82,27 @@ def extract_article_url(service, msg_id):
             return resolve_redirect(href)
     return None
 
+def get_or_create_label(service, label_name="Sent to Instapaper"):
+    """Get the label ID for the given label name, creating it if it doesn't exist."""
+    labels = service.users().labels().list(userId="me").execute()
+    for label in labels.get("labels", []):
+        if label["name"] == label_name:
+            return label["id"]
+    
+    # Create label if it doesn't exist (should if just manually created on Gmail)
+    new_label = service.users().labels().create(
+        userId="me",
+        body={"name": label_name}
+    ).execute()
+    return new_label["id"]
+
 def mark_as_read(service, msg_id):
+    label_id = get_or_create_label(service)
     service.users().messages().modify(
         userId="me",
         id=msg_id,
-        body={"removeLabelIds": ["UNREAD"]}
+        body={
+            "removeLabelIds": ["UNREAD"],
+            "addLabelIds": [label_id]
+        }
     ).execute()
