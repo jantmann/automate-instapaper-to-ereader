@@ -1,4 +1,6 @@
 import os
+import warnings
+warnings.filterwarnings("ignore", category=FutureWarning, module="huggingface_hub")
 from sentence_transformers import SentenceTransformer, util
 
 # Load model once at module level so it isn't reloaded for every article
