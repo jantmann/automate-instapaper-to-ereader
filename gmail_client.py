@@ -49,10 +49,16 @@ def get_unread_substack_emails(service, sender_email):
 def resolve_redirect(url):
     """Follow redirects to get the final article URL."""
     try:
-        response = requests.head(url, allow_redirects=True, timeout=10)
+        response = requests.get(
+            url,
+            allow_redirects=True,
+            timeout=10,
+            headers={"User-Agent": "Mozilla/5.0"}
+        )
         return response.url.split("?")[0]
-    except requests.RequestException:
-        return url
+    except requests.RequestException as e:
+        print(f"Could not resolve redirect for {url}: {e}")
+        return None
 
 def extract_article_url(service, msg_id):
     """Extract the main article URL from a Substack email."""
