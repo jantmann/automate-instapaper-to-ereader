@@ -14,7 +14,7 @@ SCOPES = ["https://www.googleapis.com/auth/gmail.modify"]
 def get_gmail_service():
     creds = None
 
-    # Load from environment variables (GitHub Actions)
+    # Load from enviro variables for Github actions
     gmail_token = os.getenv("GMAIL_TOKEN")
     gmail_credentials = os.getenv("GMAIL_CREDENTIALS")
 
@@ -36,7 +36,6 @@ def get_gmail_service():
             flow = InstalledAppFlow.from_client_secrets_file("credentials.json", SCOPES)
             creds = flow.run_local_server(port=0)
 
-        # Save token locally if not running in GitHub Actions
         if not gmail_token and creds:
             with open("token.json", "w") as f:
                 f.write(creds.to_json())
@@ -68,7 +67,7 @@ def extract_article_url(service, msg_id):
     """Extract the main article URL from a Substack email."""
     msg = service.users().messages().get(userId="me", id=msg_id, format="full").execute()
 
-    # Get HTML body
+    # HTML body
     parts = msg["payload"].get("parts", [])
     html_body = None
     for part in parts:
@@ -99,7 +98,7 @@ def get_or_create_label(service, label_name="Sent to Instapaper"):
         if label["name"] == label_name:
             return label["id"]
     
-    # Create label if it doesn't exist (should if just manually created on Gmail)
+    # Create label if it doesn't exist
     new_label = service.users().labels().create(
         userId="me",
         body={"name": label_name}
