@@ -14,13 +14,13 @@ SCOPES = ["https://www.googleapis.com/auth/gmail.modify"]
 def get_gmail_service():
     creds = None
 
-    # Load from environment variables (GitHub Actions)
+    # Load from enviro variables for Github actions
     gmail_token = os.getenv("GMAIL_TOKEN")
     gmail_credentials = os.getenv("GMAIL_CREDENTIALS")
 
     if gmail_token:
         creds = Credentials.from_authorized_user_info(json.loads(gmail_token), SCOPES)
-    
+
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
@@ -31,9 +31,12 @@ def get_gmail_service():
                 json.loads(gmail_credentials), SCOPES
             )
             creds = flow.run_local_server(port=0)
-        
-        # Save token locally if possible
-        if not gmail_token:
+        else:
+            # Local development fallback
+            flow = InstalledAppFlow.from_client_secrets_file("credentials.json", SCOPES)
+            creds = flow.run_local_server(port=0)
+
+        if not gmail_token and creds:
             with open("token.json", "w") as f:
                 f.write(creds.to_json())
 
@@ -49,16 +52,22 @@ def get_unread_substack_emails(service):
 def resolve_redirect(url):
     """Follow redirects to get the final article URL."""
     try:
-        response = requests.head(url, allow_redirects=True, timeout=10)
+        response = requests.get(
+            url,
+            allow_redirects=True,
+            timeout=10,
+            headers={"User-Agent": "Mozilla/5.0"}
+        )
         return response.url.split("?")[0]
-    except requests.RequestException:
-        return url
+    except requests.RequestException as e:
+        print(f"Could not resolve redirect for {url}: {e}")
+        return None
 
 def extract_article_url(service, msg_id):
     """Extract the main article URL from a Substack email."""
     msg = service.users().messages().get(userId="me", id=msg_id, format="full").execute()
 
-    # Get HTML body
+    # HTML body
     parts = msg["payload"].get("parts", [])
     html_body = None
     for part in parts:
@@ -89,7 +98,7 @@ def get_or_create_label(service, label_name="Sent to Instapaper"):
         if label["name"] == label_name:
             return label["id"]
     
-    # Create label if it doesn't exist (should if just manually created on Gmail)
+    # Create label if it doesn't exist
     new_label = service.users().labels().create(
         userId="me",
         body={"name": label_name}
