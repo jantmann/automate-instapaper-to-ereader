@@ -20,7 +20,7 @@ def get_gmail_service():
 
     if gmail_token:
         creds = Credentials.from_authorized_user_info(json.loads(gmail_token), SCOPES)
-    
+
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
@@ -31,9 +31,13 @@ def get_gmail_service():
                 json.loads(gmail_credentials), SCOPES
             )
             creds = flow.run_local_server(port=0)
-        
-        # Save token locally if possible
-        if not gmail_token:
+        else:
+            # Local development fallback
+            flow = InstalledAppFlow.from_client_secrets_file("credentials.json", SCOPES)
+            creds = flow.run_local_server(port=0)
+
+        # Save token locally if not running in GitHub Actions
+        if not gmail_token and creds:
             with open("token.json", "w") as f:
                 f.write(creds.to_json())
 
