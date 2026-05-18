@@ -3,6 +3,7 @@ import json
 import base64
 import requests
 import datetime
+import quopri
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -58,7 +59,8 @@ def resolve_redirect(url):
             timeout=10,
             headers={"User-Agent": "Mozilla/5.0"}
         )
-        return response.url.split("?")[0]
+        final_url = response.url
+        return final_url.split("?")[0]
     except requests.RequestException as e:
         print(f"Could not resolve redirect for {url}: {e}")
         return None
@@ -67,19 +69,29 @@ def extract_article_url(service, msg_id):
     """Extract the main article URL from a Substack email."""
     msg = service.users().messages().get(userId="me", id=msg_id, format="full").execute()
 
-    # HTML body
+    # First try the header for direct URL
+    headers = msg["payload"].get("headers", [])
+    for header in headers:
+        if header["name"].lower() == "list-post":
+            # List-Post format is: <https://url>
+            value = header["value"]
+            if value.startswith("<") and value.endswith(">"):
+                return value[1:-1]
+            return value
+
+    # fallback to parsing HTML body and resolve redirect
     parts = msg["payload"].get("parts", [])
     html_body = None
     for part in parts:
         if part["mimeType"] == "text/html":
             data = part["body"].get("data", "")
-            html_body = base64.urlsafe_b64decode(data).decode("utf-8")
+            raw = base64.urlsafe_b64decode(data)
+            html_body = quopri.decodestring(raw).decode("utf-8", errors="ignore")
             break
 
     if not html_body and msg["payload"]["body"].get("data"):
-        html_body = base64.urlsafe_b64decode(
-            msg["payload"]["body"]["data"]
-        ).decode("utf-8")
+        raw = base64.urlsafe_b64decode(msg["payload"]["body"]["data"])
+        html_body = quopri.decodestring(raw).decode("utf-8", errors="ignore")
 
     if not html_body:
         return None
