@@ -59,7 +59,8 @@ def resolve_redirect(url):
             timeout=10,
             headers={"User-Agent": "Mozilla/5.0"}
         )
-        return response.url.split("?")[0]
+        final_url = response.url
+        return final_url.split("?")[0]
     except requests.RequestException as e:
         print(f"Could not resolve redirect for {url}: {e}")
         return None
