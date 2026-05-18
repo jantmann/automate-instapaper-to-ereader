@@ -69,13 +69,23 @@ def extract_article_url(service, msg_id):
     """Extract the main article URL from a Substack email."""
     msg = service.users().messages().get(userId="me", id=msg_id, format="full").execute()
 
+    # First try the header for direct URL
+    headers = msg["payload"].get("headers", [])
+    for header in headers:
+        if header["name"].lower() == "list-post":
+            # List-Post format is: <https://url>
+            value = header["value"]
+            if value.startswith("<") and value.endswith(">"):
+                return value[1:-1]
+            return value
+
+    # fallback to parsing HTML body and resolve redirect
     parts = msg["payload"].get("parts", [])
     html_body = None
     for part in parts:
         if part["mimeType"] == "text/html":
             data = part["body"].get("data", "")
             raw = base64.urlsafe_b64decode(data)
-            # Decode quoted-printable encoding before parsing HTML
             html_body = quopri.decodestring(raw).decode("utf-8", errors="ignore")
             break
 
