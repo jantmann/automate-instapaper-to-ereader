@@ -61,6 +61,8 @@ cp config.env.tmpl config.env
     5. APIs & Services -> Credentials -> Create Credentials -> OAuth 2.0 Client ID
         * Select "Desktop app" as application type
         * Download the generated file, save it as "credentials.json" in your project root *** IMPORTANT ***
+    6. APIs & Services -> OAuth consent screen -> Audience -> Publishing status
+        * Make sure your app is "in production" rather than testing. Otherwise, your token will expire after about a week and the app will break.
     6. Run the script locally for the first time
         ```
         python main.py
@@ -120,7 +122,7 @@ The workflow file is required to be in the main branch in order to be picked up 
     * Go to your repo -> Actions -> Substack to Instapaper -> Run workflow
 
 ### Cost
-This pipeline is free to run.
+
 * GitHub Actions: free tier includes 2,000 min/month for private repos. This workflow uses approximately 1-2 minutes per day.
 * cron-job.org: free for personal use
 * Gmail API: free for personal use
